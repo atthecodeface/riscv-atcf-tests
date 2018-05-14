@@ -1,0 +1,14 @@
+SECTIONS
+{
+  . = 0x00;
+  .start : { *(.start) }
+  . = 0x400;
+  .stack : { *(.stack) }
+  . = 0x600;
+  .stack_end : { *(.stack_end) }
+  .text : { *(.text) }
+  . = 0x1000;
+  .data : { *(.data) }
+  .bss : { *(.bss) }
+  /DISCARD/ : { *(.comment) *(.note.GNU-stack) }
+}
