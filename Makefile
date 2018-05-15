@@ -1,17 +1,19 @@
+ROOT := ${CURDIR}
+
 LD   := ../riscv-gnu-tools/bin/riscv64-unknown-elf-ld
 CC   := ../llvm_build/bin/clang
 OD   := ../riscv-gnu-tools/bin/riscv64-unknown-elf-objdump
 OC   := ../riscv-gnu-tools/bin/riscv64-unknown-elf-objcopy
 
 
-SRC_DIR := src
-BUILD_DIR := build
-SCRIPTS_DIR := scripts
+SRC_DIR     := ${ROOT}/src
+BUILD_DIR   := ${ROOT}/build
+SCRIPTS_DIR := ${ROOT}/scripts
 OBJ_DIR := ${BUILD_DIR}/obj
 MAP_DIR := ${BUILD_DIR}/map
 BIN_DIR := ${BUILD_DIR}/bin
 
-all: ${BIN_DIR}/loop.elf
+all: ${BIN_DIR}/loop.elf ${BIN_DIR}/logic.elf
 
 all_old:
 	${CC} --target=riscv32 -march=rv32i thing.S -c -o thing.o
@@ -20,14 +22,21 @@ all_old:
 	${OC} --target elf32-littleriscv --remove-section=.comment --remove-section=.note thing.elf.full thing.elf
 
 ${OBJ_DIR}/base.o: ${SRC_DIR}/wrappers/base.S
-	${CC} --target=riscv32 -march=rv32i $< -c -o $@
+	${CC} --target=riscv32 -march=rv32i -I${SRC_DIR} $< -c -o $@
 
 ${OBJ_DIR}/loop.o: ${SRC_DIR}/simple/loop.c
-	${CC} --target=riscv32 -march=rv32i $< -c -o $@
+	${CC} --target=riscv32 -march=rv32i -I${SRC_DIR} $< -c -o $@
+
+${OBJ_DIR}/logic.o: ${SRC_DIR}/simple/logic.c
+	${CC} --target=riscv32 -march=rv32i -O1 -I${SRC_DIR} $< -c -o $@
 
 ${BIN_DIR}/loop.elf: ${OBJ_DIR}/base.o ${OBJ_DIR}/loop.o ${SCRIPTS_DIR}/link.script
 	${LD} -melf32lriscv  ${OBJ_DIR}/base.o ${OBJ_DIR}/loop.o --strip-all --script ${SCRIPTS_DIR}/link.script -Map ${MAP_DIR}/loop.map -o ${BIN_DIR}/loop.elf.full -nostdlib
 	${OC} --target elf32-littleriscv --remove-section=.comment --remove-section=.note ${BIN_DIR}/loop.elf.full ${BIN_DIR}/loop.elf
+
+${BIN_DIR}/logic.elf: ${OBJ_DIR}/base.o ${OBJ_DIR}/logic.o ${SCRIPTS_DIR}/link.script
+	${LD} -melf32lriscv  ${OBJ_DIR}/base.o ${OBJ_DIR}/logic.o --strip-all --script ${SCRIPTS_DIR}/link.script -Map ${MAP_DIR}/logic.map -o ${BIN_DIR}/logic.elf.full -nostdlib
+	${OC} --target elf32-littleriscv --remove-section=.comment --remove-section=.note ${BIN_DIR}/logic.elf.full ${BIN_DIR}/logic.elf
 
 clean:
 	rm -f ${OBJ_DIR}/* ${MAP_DIR}/* ${BIN_DIR}/*
@@ -47,7 +56,7 @@ hex:
 	${OD} -j .start -s thing.elf
 
 dis:
-	${OD} -D thing.elf
+	${OD} -D ${BIN_DIR}/logic.elf.full
 
 fred:
 	${CC} --target=riscv32 -march=rv32i fred.c -S -o fred.S
