@@ -6,6 +6,12 @@ _reset:
     addi    x2, x2, %lo(_stack)
     j       start
 
+    .p2align        2
+   /* .type   tohost,@function*/
+    .globl tohost
+tohost:
+    .long 0
+    
     .section ".stack_end"
     .globl _stack
 _stack: 

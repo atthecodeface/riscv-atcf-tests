@@ -52,7 +52,7 @@ def logic0(x):
         temp = temp & 0xffffffff
         x    = temp - nx # sub x, temp, nx
         x = x & 0xffffffff
-        #print("Iteration %d mixed was %08x output %08x (temp %08x)"%(i, nx, x, temp))
+        print("Iteration %d mixed was %08x output %08x (temp %08x)"%(i, nx, x, temp))
         pass
     return x
 

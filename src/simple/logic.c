@@ -25,6 +25,7 @@ static t_uint32 logic0_results[4] = {
     0xbbfc06e4,
     0x8a53fd4d};
 
+extern int tohost;
 extern int start(void) {
     int i;
     for (i=0; i<4; i++) {
@@ -33,5 +34,6 @@ extern int start(void) {
             while (1) {} // FAIL
         }
     }
+    tohost = 1337; // PASS
     while (1) {} // PASS
 }
