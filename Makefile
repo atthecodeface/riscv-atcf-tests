@@ -14,7 +14,7 @@ MAP_DIR  := ${BUILD_DIR}/map
 BIN_DIR  := ${BUILD_DIR}/bin
 DUMP_DIR := ${BUILD_DIR}/dump
 
-all: ${DUMP_DIR}/loop.dump ${DUMP_DIR}/logic.dump
+all: ${DUMP_DIR}/loop.dump ${DUMP_DIR}/logic.dump ${DUMP_DIR}/traps.dump
 
 all_old:
 	${CC} --target=riscv32 -march=rv32i thing.S -c -o thing.o
@@ -28,11 +28,12 @@ ${OBJ_DIR}/%.o: ${SRC_DIR}/wrappers/%.S
 ${OBJ_DIR}/%.o: ${SRC_DIR}/simple/%.c
 	${CC} --target=riscv32 -march=rv32i -I${SRC_DIR} $< -c -o $@
 
-${BIN_DIR}/%.elf.full: ${OBJ_DIR}/%.o ${SCRIPTS_DIR}/link.script ${OBJ_DIR}/base.o 
+${BIN_DIR}/%.elf.full: ${OBJ_DIR}/%.o ${SCRIPTS_DIR}/link.script ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o 
 	# --strip-all strips out the symbols, but we want 'tohost'
-	${LD} -melf32lriscv  ${OBJ_DIR}/base.o $< --script ${SCRIPTS_DIR}/link.script -Map ${MAP_DIR}/logic.map -o $@ -nostdlib
+	${LD} -melf32lriscv  ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o $< --script ${SCRIPTS_DIR}/link.script -Map ${MAP_DIR}/logic.map -o $@ -nostdlib
 
 .PRECIOUS: ${BIN_DIR}/%.elf
+.PRECIOUS: ${OBJ_DIR}/%.o
 
 ${BIN_DIR}/%.elf: ${BIN_DIR}/%.elf.full
 	${OC} --target elf32-littleriscv --remove-section=.comment --remove-section=.note $< $@
