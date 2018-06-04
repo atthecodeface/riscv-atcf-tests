@@ -15,7 +15,7 @@ record_trap:
     sw t0,4(t1)
     csrr t0, 0x304 /* mstatus */
     sw t0,8(t1)
-    csrr t0, 0x304 /* mtval */
+    csrr t0, 0x343 /* mtval */
     sw t0,12(t1)
     mret
 

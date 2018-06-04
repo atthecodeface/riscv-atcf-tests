@@ -1,14 +1,12 @@
 SECTIONS
 {
   . = 0x80000000;
-  .start : { *(.start) }
-  . = 0x80000400;
+  .start : { *(.start) *(.text) }
+  . = 0x80000f00;
   .stack : { *(.stack) }
-  . = 0x80000600;
-  .stack_end : { *(.stack_end) }
-  .text : { *(.text) }
   . = 0x80001000;
-  .data : { *(.data) }
-  .bss : { *(.bss) }
+  .stack_end : { *(.stack_end) }
+  . = 0x80001000;
+  .data : { *(.data) *(.bss) }
   /DISCARD/ : { *(.comment) *(.note.GNU-stack) }
 }

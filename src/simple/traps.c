@@ -49,13 +49,13 @@ extern int start(void) {
 
     // ebreak : note c.ebreak i32c version too. Makes mcause=3 (breakpoint). Sets mepc to address of break. Branches to mtvec
     __asm volatile("auipc %0, 0; csrw 0x340, %0; ebreak" : "=r"(temp2) );
-    check_trap(0, 3, 0);
+    check_trap(0, 3, temp2+8);
 
     // Illegal instruction. Makes mcause=2. Sets mepc to address of break. Branches to mtvec. Sets mtval to the instruction.
     __asm volatile("auipc %0, 0; csrw 0x340, %0; .long 0x0" : "=r"(temp2) );
     check_trap(0, 2, 0);
 
     // mret is a branch to mepc; sets mie to mpie; sets mode to mpp; mpie is set to 1; mpp is set to u (or m if u not supported)
-    tohost = 1337; // PASS
+    tohost = 1; // PASS
     while (1) {} // PASS
 }

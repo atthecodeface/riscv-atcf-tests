@@ -34,6 +34,6 @@ extern int start(void) {
             while (1) {} // FAIL
         }
     }
-    tohost = 1337; // PASS
+    tohost = 1; // PASS
     while (1) {} // PASS
 }
