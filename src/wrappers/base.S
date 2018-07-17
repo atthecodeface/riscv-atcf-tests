@@ -12,6 +12,8 @@ _reset:
 tohost:
     .long 0
     
+    .section ".stack"
+
     .section ".stack_end"
     .globl _stack
 _stack: 
