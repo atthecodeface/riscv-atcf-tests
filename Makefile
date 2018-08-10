@@ -14,7 +14,7 @@ MAP_DIR  := ${BUILD_DIR}/map
 BIN_DIR  := ${BUILD_DIR}/bin
 DUMP_DIR := ${BUILD_DIR}/dump
 
-all: ${DUMP_DIR}/loop.dump ${DUMP_DIR}/logic.dump ${DUMP_DIR}/traps.dump
+all: ${DUMP_DIR}/loop.dump ${DUMP_DIR}/logic.dump ${DUMP_DIR}/traps.dump ${DUMP_DIR}/c_arith.dump ${DUMP_DIR}/c_stack.dump ${DUMP_DIR}/c_jump.dump ${DUMP_DIR}/c_logic.dump
 
 all_old:
 	${CC} --target=riscv32 -march=rv32i thing.S -c -o thing.o
@@ -27,6 +27,12 @@ ${OBJ_DIR}/%.o: ${SRC_DIR}/wrappers/%.S
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/simple/%.c
 	${CC} --target=riscv32 -march=rv32i -I${SRC_DIR} $< -c -o $@
+
+${OBJ_DIR}/%.o: ${SRC_DIR}/compressed/%.c
+	${CC} --target=riscv32 -march=rv32ic -I${SRC_DIR} $< -c -o $@
+
+${OBJ_DIR}/%.o: ${SRC_DIR}/compressed/%.S
+	${CC} --target=riscv32 -march=rv32ic -I${SRC_DIR} $< -c -o $@
 
 ${BIN_DIR}/%.elf.full: ${OBJ_DIR}/%.o ${SCRIPTS_DIR}/link.script ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o 
 	# --strip-all strips out the symbols, but we want 'tohost'
