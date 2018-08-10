@@ -21,6 +21,8 @@ record_trap:
 
     
     .globl record_trap
+
+    .section ".trap_data"
     .globl trap_data
     
     .p2align        4 /* 16-byte alignment */

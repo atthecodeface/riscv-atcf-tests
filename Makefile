@@ -14,6 +14,14 @@ MAP_DIR  := ${BUILD_DIR}/map
 BIN_DIR  := ${BUILD_DIR}/bin
 DUMP_DIR := ${BUILD_DIR}/dump
 
+CC_TARG_ARCH := --target=riscv64 -march=rv64i
+LD_TARG_ARCH := -melf64lriscv  
+OC_TARG_ARCH := --target elf64-littleriscv
+
+CC_TARG_ARCH := --target=riscv32 -march=rv32i
+LD_TARG_ARCH := -melf32lriscv  
+OC_TARG_ARCH := --target elf32-littleriscv
+
 all: ${DUMP_DIR}/loop.dump ${DUMP_DIR}/logic.dump ${DUMP_DIR}/traps.dump ${DUMP_DIR}/c_arith.dump ${DUMP_DIR}/c_stack.dump ${DUMP_DIR}/c_jump.dump ${DUMP_DIR}/c_logic.dump
 
 all_old:
@@ -23,10 +31,10 @@ all_old:
 	${OC} --target elf32-littleriscv --remove-section=.comment --remove-section=.note thing.elf.full thing.elf
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/wrappers/%.S
-	${CC} --target=riscv32 -march=rv32i -I${SRC_DIR} $< -c -o $@
+	${CC} ${CC_TARG_ARCH} -I${SRC_DIR} $< -c -o $@
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/simple/%.c
-	${CC} --target=riscv32 -march=rv32i -I${SRC_DIR} $< -c -o $@
+	${CC} ${CC_TARG_ARCH} -I${SRC_DIR} $< -c -o $@
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/compressed/%.c
 	${CC} --target=riscv32 -march=rv32ic -I${SRC_DIR} $< -c -o $@
@@ -36,13 +44,13 @@ ${OBJ_DIR}/%.o: ${SRC_DIR}/compressed/%.S
 
 ${BIN_DIR}/%.elf.full: ${OBJ_DIR}/%.o ${SCRIPTS_DIR}/link.script ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o 
 	# --strip-all strips out the symbols, but we want 'tohost'
-	${LD} -melf32lriscv  ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o $< --script ${SCRIPTS_DIR}/link.script -Map ${MAP_DIR}/logic.map -o $@ -nostdlib
+	${LD} ${LD_TARG_ARCH} ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o $< --script ${SCRIPTS_DIR}/link.script -Map ${MAP_DIR}/logic.map -o $@ -nostdlib
 
 .PRECIOUS: ${BIN_DIR}/%.elf
 .PRECIOUS: ${OBJ_DIR}/%.o
 
 ${BIN_DIR}/%.elf: ${BIN_DIR}/%.elf.full
-	${OC} --target elf32-littleriscv --remove-section=.comment --remove-section=.note $< $@
+	${OC} ${OC_TARG_ARCH} --remove-section=.comment --remove-section=.note $< $@
 
 ${DUMP_DIR}/%.dump: ${BIN_DIR}/%.elf
 	${OD} --disassemble-all --disassemble-zeroes --insn-width=2 $< >  $@
