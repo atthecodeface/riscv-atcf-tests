@@ -1,9 +1,12 @@
 ROOT := ${CURDIR}
+RISCV_TOOLS_PREFIX := ../tools/bin/riscv32-none-elf-
+RISCV_TOOLS_PREFIX := ../riscv-gnu-tools/bin/riscv64-unknown-elf-
+LLVM_BUILD := ../llvm_build
 
-LD   := ../riscv-gnu-tools/bin/riscv64-unknown-elf-ld
-CC   := ../llvm_build/bin/clang
-OD   := ../riscv-gnu-tools/bin/riscv64-unknown-elf-objdump
-OC   := ../riscv-gnu-tools/bin/riscv64-unknown-elf-objcopy
+LD   := $(RISCV_TOOLS_PREFIX)ld
+CC   := $(LLVM_BUILD)/bin/clang
+OD   := $(RISCV_TOOLS_PREFIX)objdump
+OC   := $(RISCV_TOOLS_PREFIX)objcopy
 
 
 SRC_DIR     := ${ROOT}/src
@@ -14,6 +17,7 @@ MAP_DIR  := ${BUILD_DIR}/map
 BIN_DIR  := ${BUILD_DIR}/bin
 DUMP_DIR := ${BUILD_DIR}/dump
 
+
 CC_TARG_ARCH := --target=riscv64 -march=rv64i
 LD_TARG_ARCH := -melf64lriscv  
 OC_TARG_ARCH := --target elf64-littleriscv
@@ -22,8 +26,7 @@ CC_TARG_ARCH := --target=riscv32 -march=rv32i
 LD_TARG_ARCH := -melf32lriscv  
 OC_TARG_ARCH := --target elf32-littleriscv
 
-all: ${DUMP_DIR}/loop.dump ${DUMP_DIR}/logic.dump ${DUMP_DIR}/traps.dump ${DUMP_DIR}/c_arith.dump ${DUMP_DIR}/c_stack.dump ${DUMP_DIR}/c_jump.dump ${DUMP_DIR}/c_logic.dump
-all: ${DUMP_DIR}/c_mv.dump
+all: ${DUMP_DIR}/loop.dump ${DUMP_DIR}/traps.dump ${DUMP_DIR}/logic.dump 
 
 all_old:
 	${CC} --target=riscv32 -march=rv32i thing.S -c -o thing.o
@@ -36,12 +39,6 @@ ${OBJ_DIR}/%.o: ${SRC_DIR}/wrappers/%.S
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/simple/%.c
 	${CC} ${CC_TARG_ARCH} -I${SRC_DIR} $< -c -o $@
-
-${OBJ_DIR}/%.o: ${SRC_DIR}/compressed/%.c
-	${CC} --target=riscv32 -march=rv32ic -I${SRC_DIR} $< -c -o $@
-
-${OBJ_DIR}/%.o: ${SRC_DIR}/compressed/%.S
-	${CC} --target=riscv32 -march=rv32ic -I${SRC_DIR} $< -c -o $@
 
 ${BIN_DIR}/%.elf.full: ${OBJ_DIR}/%.o ${SCRIPTS_DIR}/link.script ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o 
 	# --strip-all strips out the symbols, but we want 'tohost'
