@@ -1,9 +1,10 @@
     .globl start
-    .globl tohost
+RV_TEST_ASM_CODE
 
     .p2align        4 /* 16-byte alignment */
     .type   start,@function
 start:
+RV_TEST_ASM_INIT
 
     j over
 
@@ -32,14 +33,7 @@ check_values:
     bne x11, x12, fail
 
 pass:   
-    addi    a1, x0, 1
-    lui     a0, %hi(tohost)
-    addi    a0, a0, %lo(tohost)
-    sw      a1, 0(a0)
-    j loop
+    RV_TEST_ASM_PASS
 fail:
-    lui     a0, %hi(tohost)
-    addi    a0, a0, %lo(tohost)
-    sw      a1, 0(a0)
-loop:
-    j loop
+    add a0, x0, a1
+    RV_TEST_ASM_FAIL

@@ -1,5 +1,5 @@
     .globl start
-    .globl tohost
+RV_TEST_ASM_CODE
 
     /* Tested:
 
@@ -35,13 +35,14 @@
     .p2align        4 /* 16-byte alignment */
     .type   start,@function
 start:
+RV_TEST_ASM_INIT
+
     addi    sp,sp,-32 /* Give us a bit of stack space for testing the sp ops */
     
-    lui     a0, %hi(tohost)
-    addi    a0, a0, %lo(tohost)
+    RV_TEST_ASM_PROGRESS(a0)
 
     addi    a1, x0, 16 // become li a1, 16 but the assembler cannot cope with that yet
-    sw      a1, 0(a0) // [tohost] = 16
+    sw      a1, 0(a0) // [progress] = 16
 
     addi    a2, x0, 1
     slli    a2, a2, 4 // a2 = 16
@@ -57,7 +58,7 @@ start:
     bnez    a2, fail
 
     addi    a1, a1, 1 // a1 = 19
-    lw      a3, 0(a0) // a3 = 16, read from tohost
+    lw      a3, 0(a0) // a3 = 16, read from progress
     xor     a3, a3, a1 // a3 = 3
     addi    a3, a3, -3 // a3 = 0
     bnez    a3, fail
@@ -96,8 +97,7 @@ start:
     bne     a2, a3, fail
     
 pass:   
-    addi    a1, x0, 1
+    RV_TEST_ASM_PASS
 fail:
-    sw      a1, 0(a0)
-loop:
-    j loop
+    add a0, x0, a1
+    RV_TEST_ASM_FAIL

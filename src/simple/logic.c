@@ -1,5 +1,7 @@
 #include "lib/mix.h"
 
+RV_TEST_CODE
+
 static int
 logic0(t_uint32 x)
 {
@@ -25,15 +27,14 @@ static t_uint32 logic0_results[4] = {
     0xbbfc06e4,
     0x8a53fd4d};
 
-extern int tohost;
 extern int start(void) {
     int i;
+    RV_TEST_INIT;
     for (i=0; i<4; i++) {
         t_uint32 x=logic0(i);
         if (x != logic0_results[i]) {
-            while (1) {} // FAIL
+            RV_TEST_FAIL(10);
         }
     }
-    tohost = 1; // PASS
-    while (1) {} // PASS
+    RV_TEST_PASS(1);
 }
