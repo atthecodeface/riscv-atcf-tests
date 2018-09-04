@@ -42,29 +42,36 @@ all_old:
 	${OC} --target elf32-littleriscv --remove-section=.comment --remove-section=.note thing.elf.full thing.elf
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/wrappers/%.S
-	${CC} ${CC_TARG_ARCH} ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
+	@echo "Assemble $< to $@"
+	@${CC} ${CC_TARG_ARCH} ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/simple/%.c
-	${CC} ${CC_TARG_ARCH}  ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
+	@echo "Compile $< to $@"
+	@${CC} ${CC_TARG_ARCH}  ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/compressed/%.c
-	${CC} --target=riscv32 -march=rv32ic  ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
+	@echo "Compile $< to $@"
+	@${CC} --target=riscv32 -march=rv32ic  ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/compressed/%.S
-	${CC} --target=riscv32 -march=rv32ic  ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
+	@echo "Assemble compressed $< to $@"
+	@${CC} --target=riscv32 -march=rv32ic  ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
 
+# --strip-all strips out the symbols, but we want 'tohost'
 ${BIN_DIR}/%.elf.full: ${OBJ_DIR}/%.o ${SCRIPTS_DIR}/link.script ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o 
-	# --strip-all strips out the symbols, but we want 'tohost'
-	${LD} ${LD_TARG_ARCH} ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o $< --script ${SCRIPTS_DIR}/link.script -Map ${MAP_DIR}/logic.map -o $@ -nostdlib
+	@echo "Link to $@"
+	@${LD} ${LD_TARG_ARCH} ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o $< --script ${SCRIPTS_DIR}/link.script -Map ${MAP_DIR}/logic.map -o $@ -nostdlib
 
 .PRECIOUS: ${BIN_DIR}/%.elf
 .PRECIOUS: ${OBJ_DIR}/%.o
 
 ${BIN_DIR}/%.elf: ${BIN_DIR}/%.elf.full
-	${OC} ${OC_TARG_ARCH} --remove-section=.comment --remove-section=.note $< $@
+	@echo "Objcopy $< to $@ (remove sections)"
+	@${OC} ${OC_TARG_ARCH} --remove-section=.comment --remove-section=.note $< $@
 
 ${DUMP_DIR}/%.dump: ${BIN_DIR}/%.elf
-	${OD} --disassemble-all --disassemble-zeroes --insn-width=2 $< >  $@
+	@echo "Disassemble to $@"
+	@${OD} --disassemble-all --disassemble-zeroes --insn-width=2 $< >  $@
 
 clean:
 	rm -f ${OBJ_DIR}/* ${MAP_DIR}/* ${BIN_DIR}/* ${DUMP_DIR}/*
