@@ -21,11 +21,12 @@ logic0(t_uint32 x)
     return x;
 }
 
-static t_uint32 logic0_results[4] = {
+static t_uint32 logic0_results[5] = {
     0xffffffff,
     0x3f54015f,
     0xbbfc06e4,
-    0x8a53fd4d};
+    0x8a53fd4d,
+    0xbad00bad}; // end marker as LLVM CS 04538fb309782ee0225a41ee58e1774fcaaaab20 does not output the last 16-bits
 
 extern int start(void) {
     int i;
