@@ -31,7 +31,10 @@ CC_TARG_ARCH := --target=riscv32 -march=rv32i
 LD_TARG_ARCH := -melf32lriscv  
 OC_TARG_ARCH := --target elf32-littleriscv
 
-all: ${DUMP_DIR}/loop.dump ${DUMP_DIR}/logic.dump ${DUMP_DIR}/traps.dump ${DUMP_DIR}/c_arith.dump ${DUMP_DIR}/c_stack.dump ${DUMP_DIR}/c_jump.dump ${DUMP_DIR}/c_logic.dump
+all: ${DUMP_DIR}/loop.dump ${DUMP_DIR}/logic.dump ${DUMP_DIR}/traps.dump
+all: ${DUMP_DIR}/data.dump
+all: ${DUMP_DIR}/c_arith.dump ${DUMP_DIR}/c_stack.dump
+all: ${DUMP_DIR}/c_jump.dump ${DUMP_DIR}/c_logic.dump
 all: ${DUMP_DIR}/c_mv.dump ${DUMP_DIR}/c_branch.dump
 
 all_old:
