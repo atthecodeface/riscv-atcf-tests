@@ -114,3 +114,5 @@ fred:
 #OBJDUMP     = $(AFPC_TOOLS)/${BINUTILS_ARCH}/bin/objdump
 #OBJCOPY     = $(AFPC_TOOLS)/${BINUTILS_ARCH}/bin/objcopy
 #ELF_TO_MIF  = python $(SCRIPTS_DIR)/elf_to_mif.py --objdump=$(OBJDUMP) --verbose=1
+
+include Makefile.hps

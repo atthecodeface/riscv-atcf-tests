@@ -1,0 +1,12 @@
+hps: ${DUMP_DIR}/hps_ps2_term.dump
+
+${OBJ_DIR}/hps_%.o: ${SRC_DIR}/hps/%.c
+	@echo "Compile $< to $@"
+	@${CC} ${CC_TARG_ARCH} -O3 -I${SRC_DIR}/hps -I${SRC_DIR}/../inc/hps $< -c -o $@
+
+
+${BIN_DIR}/hps_ps2_term.elf.full: ${OBJ_DIR}/hps_ps2_term.o ${OBJ_DIR}/hps_ps2.o ${OBJ_DIR}/hps_hps_riscv.o ${OBJ_DIR}/hps_teletext.o ${SCRIPTS_DIR}/hps_link.script ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o 
+	@echo "Link to $@"o
+	@${LD} ${LD_TARG_ARCH} $< ${OBJ_DIR}/hps_ps2.o ${OBJ_DIR}/hps_hps_riscv.o ${OBJ_DIR}/hps_teletext.o ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o --script ${SCRIPTS_DIR}/hps_link.script -Map ${MAP_DIR}/hps_$*.map -o $@ -nostdlib
+
+
