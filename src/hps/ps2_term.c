@@ -2,9 +2,11 @@
 #include "ps2.h"
 #include "teletext.h"
 #include "hps_fpga.h"
+#include "dprintf.h"
 
 static const char *hex="0123456789abcdef";
 void terminal(void *lw_axi_base) {
+    ps2_set_divider(lw_axi_base, 150); // for 50MHz system
     tt_init(lw_axi_base);
     while (1) {
         ps2_poll(lw_axi_base);

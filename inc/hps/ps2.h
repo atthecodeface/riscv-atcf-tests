@@ -6,4 +6,5 @@
 extern int ps2_poll(void *lw_axi_base);
 extern int ps2_key_pressed(int k);
 extern int ps2_next_key(void);
+extern void ps2_set_divider(void *lw_axi_base, int n);
 

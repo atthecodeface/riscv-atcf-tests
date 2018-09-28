@@ -1,5 +1,6 @@
 #Note:
-#make LLVM_BUILD=../tools RISCV_TOOLS_PREFIX=../tools/bin/riscv32-none-elf-
+# make LLVM_BUILD=../tools RISCV_TOOLS_PREFIX=../tools/bin/riscv32-none-elf-
+# make LLVM_BUILD=/home/gavin/Git/riscv_tools RISCV_TOOLS_PREFIX=/home/gavin/Git/riscv_tools/bin/riscv64-elf-
 
 ROOT := ${CURDIR}
 RISCV_TOOLS_PREFIX := ../tools/bin/riscv32-none-elf-
@@ -34,10 +35,19 @@ OC_TARG_ARCH := --target elf32-littleriscv
 all: ${DUMP_DIR}/loop.dump ${DUMP_DIR}/logic.dump ${DUMP_DIR}/traps.dump
 all: ${DUMP_DIR}/data.dump
 all: ${DUMP_DIR}/c_dprintf.dump
-#all: ${DUMP_DIR}/dprintf.dump
+# all: ${DUMP_DIR}/dprintf.dump
 all: ${DUMP_DIR}/c_arith.dump ${DUMP_DIR}/c_stack.dump
 all: ${DUMP_DIR}/c_jump.dump ${DUMP_DIR}/c_logic.dump
 all: ${DUMP_DIR}/c_mv.dump ${DUMP_DIR}/c_branch.dump
+
+help:
+	@echo "Help:"
+	@echo ""
+	@echo "make all"
+	@echo "  to make all the RISC-V tests for the atthecodeface RISC-V cdl_hardware regression"
+	@echo ""
+	@echo "make hps"
+	@echo "  to make the HPS RISC-V images"
 
 all_old:
 	${CC} --target=riscv32 -march=rv32i thing.S -c -o thing.o

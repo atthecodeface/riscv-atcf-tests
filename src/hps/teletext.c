@@ -31,14 +31,19 @@ void tt_init(void *lw_axi_base) {
     tt_cls(lw_axi_base);
 }
 
+static void blank_line(volatile uint32_t *csrs_fb_vga) {
+    int j;
+    for (j=0; j<DISP_WIDTH; j++) {
+        csrs_fb_vga[SRAM_CSR_DATA_INC] = (j==0)?'>':((j==DISP_WIDTH-1)?'<':32);
+    }
+}
+
 void tt_cls(void *lw_axi_base) {
     volatile uint32_t *csrs_fb_vga       = APB_CSR(lw_axi_base, APB_FB_VGA_SEL, 0);
-    int i, j;
+    int i;
     csrs_fb_vga[SRAM_CSR_ADDRESS] = 0;
     for (i=0; i<DISP_HEIGHT; i++) {
-        for (j=0; j<DISP_WIDTH; j++) {
-            csrs_fb_vga[SRAM_CSR_DATA_INC] = 32;
-        }
+        blank_line(csrs_fb_vga);
     }
 
     tt_display.screen_base = 0;
@@ -50,27 +55,21 @@ void tt_cls(void *lw_axi_base) {
 void tt_scroll_up(void *lw_axi_base) {
     volatile uint32_t *csrs_fb_vga       = APB_CSR(lw_axi_base, APB_FB_VGA_SEL, 0);
     volatile uint32_t *csrs_vga_display  = CSR_CSR(lw_axi_base, CSR_VGA_TELETEXT_SEL, 0);
-    int j;
 
     tt_display.screen_base = (tt_display.screen_base + DISP_WIDTH) % FB_SRAM_SIZE;
     csrs_vga_display[TELETEXT_CSR_BASE] = tt_display.screen_base;
     csrs_fb_vga[SRAM_CSR_ADDRESS] = tt_display.screen_base + DISP_BOTTOM_LINE_OFS;
-    for (j=0; j<DISP_WIDTH; j++) {
-        csrs_fb_vga[SRAM_CSR_DATA_INC] = 32;
-    }
+    blank_line(csrs_fb_vga);
 }
 
 void tt_scroll_down(void *lw_axi_base) {
     volatile uint32_t *csrs_fb_vga       = APB_CSR(lw_axi_base, APB_FB_VGA_SEL, 0);
     volatile uint32_t *csrs_vga_display  = CSR_CSR(lw_axi_base, CSR_VGA_TELETEXT_SEL, 0);
-    int j;
 
     tt_display.screen_base = (tt_display.screen_base + FB_SRAM_SIZE - DISP_WIDTH) % FB_SRAM_SIZE;
     csrs_vga_display[TELETEXT_CSR_BASE] = tt_display.screen_base;
     csrs_fb_vga[SRAM_CSR_ADDRESS] = tt_display.screen_base;
-    for (j=0; j<DISP_WIDTH; j++) {
-        csrs_fb_vga[SRAM_CSR_DATA_INC] = 32;
-    }
+    blank_line(csrs_fb_vga);
 }
 
 void tt_up(void *lw_axi_base) {
@@ -106,7 +105,7 @@ void tt_fwd(void *lw_axi_base) {
 
 void tt_write_char(void *lw_axi_base, int ch) {
     volatile uint32_t *csrs_fb_vga       = APB_CSR(lw_axi_base, APB_FB_VGA_SEL, 0);
-    csrs_fb_vga[SRAM_CSR_ADDRESS] = tt_display.screen_base + (tt_display.vpos/**DISP_WIDTH*/) + tt_display.hpos;
+    csrs_fb_vga[SRAM_CSR_ADDRESS] = tt_display.screen_base + (tt_display.vpos*DISP_WIDTH) + tt_display.hpos;
     csrs_fb_vga[SRAM_CSR_DATA_INC] = ch;
     tt_fwd(lw_axi_base);
 }
