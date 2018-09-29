@@ -13,6 +13,8 @@
 #define CSR_VGA_TELETEXT_SEL  4
 #define CSR_VGA_TIMING_SEL    5
 
+#define TIMER_CSR_TIMER       0
+
 #define TELETEXT_CSR_BASE            0
 #define TELETEXT_CSR_WORDS_PER_LINE  1
 

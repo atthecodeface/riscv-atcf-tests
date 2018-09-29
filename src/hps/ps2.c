@@ -137,8 +137,10 @@ int ps2_poll(void *lw_axi_base) {
     return 1;
 }
 
-int ps2_key_pressed(int k) {
-    return (keys.down[(k>>5)&7]>>(k&0x1f))!=0;
+int ps2_key_pressed(int key) {
+    int key_index = (key>>5)&7;
+    int key_bit   = 1<<(key&0x1f);
+    return (keys.down[key_index]&key_bit)!=0;
 }
 
 int ps2_next_key(void) {
