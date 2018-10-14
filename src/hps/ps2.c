@@ -1,6 +1,7 @@
 #include "types.h"
 #include "ps2.h"
 #include "hps_fpga.h"
+#include "dprintf.h"
 
 #define PS2_KBD_MAP_SIZE 94
 const char ps2_kbd_map[PS2_KBD_MAP_SIZE] = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n`\n\n\n\n\n\nQ1\n\n\nZSAW2\n\nCXDE43\n\n VFTR5\n\nNBHGY6\n\n\nMJU78\n\n,KIO09\n\n./L;P-\n\n\n'\n[=\n\n\n\n\n]\n\\";
@@ -60,6 +61,7 @@ const char ps2_kbd_map[PS2_KBD_MAP_SIZE] = "\n\n\n\n\n\n\n\n\n\n\n\n\n\n`\n\n\n\
 //0x7D,"KP9",
 //0x7E,"Scroll Lock",
 //0x83,"F7",
+
 
 static int key_prefixes;
 static int ps2_poll_ps2_host(void *lw_axi_base, int *key_number) {
@@ -135,11 +137,18 @@ int ps2_poll(void *lw_axi_base) {
     return 1;
 }
 
-int ps2_key_pressed(int k) {
-    return (keys.down[(k>>5)&7]>>(k&0x1f))!=0;
+int ps2_key_pressed(int key) {
+    int key_index = (key>>5)&7;
+    int key_bit   = 1<<(key&0x1f);
+    return (keys.down[key_index]&key_bit)!=0;
 }
 
 int ps2_next_key(void) {
     return key_read();
+}
+
+void ps2_set_divider(void *lw_axi_base, int n) {
+   volatile uint32_t *csrs_ps2_host     = APB_CSR(lw_axi_base, APB_PS2_HOST_SEL, 0);
+   csrs_ps2_host[PS2_HOST_CSR_STATE] = n<<16;
 }
 

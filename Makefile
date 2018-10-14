@@ -1,6 +1,7 @@
 #a Variables
 # Note:
 # make LLVM_BUILD=../tools RISCV_TOOLS_PREFIX=../tools/bin/riscv32-none-elf-
+# make LLVM_BUILD=/home/gavin/Git/riscv_tools RISCV_TOOLS_PREFIX=/home/gavin/Git/riscv_tools/bin/riscv64-elf-
 
 ROOT := ${CURDIR}
 RISCV_TOOLS_PREFIX := ../tools/bin/riscv32-none-elf-
@@ -108,6 +109,15 @@ $(eval $(call rv.add_obj,$1,$3))
 endef
 
 #a Define binaries
+help:
+	@echo "Help:"
+	@echo ""
+	@echo "make all"
+	@echo "  to make all the RISC-V tests for the atthecodeface RISC-V cdl_hardware regression"
+	@echo ""
+	@echo "make hps"
+	@echo "  to make the HPS RISC-V images"
+
 $(eval $(call rv.link,loop,link,base loop))
 $(eval $(call rv.link,logic,link,base logic))
 $(eval $(call rv.link,traps,link,base trap traps))

@@ -1,12 +1,32 @@
-hps: ${DUMP_DIR}/hps_ps2_term.dump
+hps: ${DUMP_DIR}/hps_ps2_term.dump ${DUMP_DIR}/hps_ps2_term2.dump
+hps: ${DUMP_DIR}/hps_racer.dump
 
 ${OBJ_DIR}/hps_%.o: ${SRC_DIR}/hps/%.c
 	@echo "Compile $< to $@"
 	@${CC} ${CC_TARG_ARCH} -O3 -I${SRC_DIR}/hps -I${SRC_DIR}/../inc/hps $< -c -o $@
 
+${OBJ_DIR}/hps_%.bc: ${SRC_DIR}/hps/%.c
+	@echo "Compile $< to $@"
+	@${CC} --target=riscv32 -march=rv32ic -emit-llvm -fno-unroll-loops -O3 -I${SRC_DIR}/hps -I${SRC_DIR}/../inc/hps $< -c -o $@
 
-${BIN_DIR}/hps_ps2_term.elf.full: ${OBJ_DIR}/hps_ps2_term.o ${OBJ_DIR}/hps_ps2.o ${OBJ_DIR}/hps_hps_riscv.o ${OBJ_DIR}/hps_teletext.o ${SCRIPTS_DIR}/hps_link.script ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o 
-	@echo "Link to $@"o
-	@${LD} ${LD_TARG_ARCH} $< ${OBJ_DIR}/hps_ps2.o ${OBJ_DIR}/hps_hps_riscv.o ${OBJ_DIR}/hps_teletext.o ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o --script ${SCRIPTS_DIR}/hps_link.script -Map ${MAP_DIR}/hps_$*.map -o $@ -nostdlib
+.PRECIOUS: ${OBJ_DIR}/fred.o ${OBJ_DIR}/fred.bc 
+${BIN_DIR}/hps_ps2_term2.elf.full: ${OBJ_DIR}/hps_ps2_term.bc ${OBJ_DIR}/hps_ps2.bc ${OBJ_DIR}/hps_timer.bc ${OBJ_DIR}/hps_dprintf.bc ${OBJ_DIR}/hps_hps_riscv.bc ${OBJ_DIR}/hps_teletext.bc ${SCRIPTS_DIR}/hps_link.script ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o ${OBJ_DIR}/mul.o
+	@echo "Compile all LLVM-BC "
+	@${LLVM_BUILD}/bin/llvm-link ${OBJ_DIR}/hps_ps2_term.bc ${OBJ_DIR}/hps_ps2.bc ${OBJ_DIR}/hps_timer.bc ${OBJ_DIR}/hps_dprintf.bc ${OBJ_DIR}/hps_hps_riscv.bc ${OBJ_DIR}/hps_teletext.bc -o ${OBJ_DIR}/fred.bc
+	@echo "Make fred.o"
+	#${LLVM_BUILD}/bin/llc -code-model=tiny -march=riscv32 -filetype=obj ${OBJ_DIR}/fred.bc -o ${OBJ_DIR}/fred.o 
+	${LLVM_BUILD}/bin/llc -code-model=tiny -O3 -march=riscv32 -mcpu=generic-rv32 -mattr=+c -filetype=obj ${OBJ_DIR}/fred.bc -o ${OBJ_DIR}/fred.o 
+	@echo "Link to $@"
+	@${LD} ${LD_TARG_ARCH} ${OBJ_DIR}/fred.o ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o ${OBJ_DIR}/mul.o --script ${SCRIPTS_DIR}/hps_link.script -Map ${MAP_DIR}/hps_$*.map -o $@ -nostdlib
+
+
+${BIN_DIR}/hps_ps2_term.elf.full: ${OBJ_DIR}/hps_ps2_term.o ${OBJ_DIR}/hps_ps2.o ${OBJ_DIR}/hps_timer.o ${OBJ_DIR}/hps_dprintf.o ${OBJ_DIR}/hps_hps_riscv.o ${OBJ_DIR}/hps_teletext.o ${SCRIPTS_DIR}/hps_link.script ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o ${OBJ_DIR}/mul.o 
+	@echo "Link to $@"
+	${LD} ${LD_TARG_ARCH} $< ${OBJ_DIR}/hps_ps2.o ${OBJ_DIR}/hps_timer.o ${OBJ_DIR}/hps_dprintf.o ${OBJ_DIR}/hps_hps_riscv.o ${OBJ_DIR}/hps_teletext.o ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o ${OBJ_DIR}/mul.o --script ${SCRIPTS_DIR}/hps_link.script -Map ${MAP_DIR}/hps_$*.map -o $@ -nostdlib
+
+
+${BIN_DIR}/hps_racer.elf.full: ${OBJ_DIR}/hps_racer.o ${OBJ_DIR}/hps_ps2.o ${OBJ_DIR}/hps_timer.o ${OBJ_DIR}/hps_dprintf.o ${OBJ_DIR}/hps_hps_riscv.o ${OBJ_DIR}/hps_teletext.o ${SCRIPTS_DIR}/hps_link.script ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o ${OBJ_DIR}/mul.o 
+	@echo "Link to $@"
+	${LD} ${LD_TARG_ARCH} $< ${OBJ_DIR}/hps_ps2.o ${OBJ_DIR}/hps_timer.o ${OBJ_DIR}/hps_dprintf.o ${OBJ_DIR}/hps_hps_riscv.o ${OBJ_DIR}/hps_teletext.o ${OBJ_DIR}/base.o ${OBJ_DIR}/trap.o ${OBJ_DIR}/mul.o --script ${SCRIPTS_DIR}/hps_link.script -Map ${MAP_DIR}/hps_$*.map -o $@ -nostdlib
 
 
