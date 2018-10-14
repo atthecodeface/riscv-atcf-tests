@@ -2,6 +2,11 @@
 #define RV_TEST_PASS(reason) {tohost = 1;while (1) {};}
 #define RV_TEST_FAIL(reason) {fail(reason);}
 #define RV_TEST_CODE int tohost __attribute__((section(".start"))); static void fail(reason) { tohost = reason; while (1) {}}
+#define RV_TIMER_BASE 0x10000000
+#define RV_TIMER_TIMER_LOWER (RV_TIMER_BASE | 0)
+#define RV_TIMER_TIMER_UPPER (RV_TIMER_BASE | 4)
+#define RV_TIMER_CMP_LOWER (RV_TIMER_BASE | 8)
+#define RV_TIMER_CMP_UPPER (RV_TIMER_BASE | 12)
 
 // For assembler code, single-threaded, use a single location 'tohost' for
 // progress, pass/fail, etc.
