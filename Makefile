@@ -12,7 +12,8 @@ LD   := $(RISCV_TOOLS_PREFIX)ld
 CC   := $(LLVM_BUILD)/bin/clang
 OD   := $(RISCV_TOOLS_PREFIX)objdump
 OC   := $(RISCV_TOOLS_PREFIX)objcopy
-
+LLVM_LLC  := $(LLVM_BUILD)/bin/llc
+LLVM_LINK := $(LLVM_BUILD)/bin/llvm-link
 
 SRC_DIR     := ${ROOT}/src
 TEST_DIR    := ${ROOT}/test
