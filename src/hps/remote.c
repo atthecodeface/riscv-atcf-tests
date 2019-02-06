@@ -1,3 +1,4 @@
+// arm-linux-gnueabi-gcc -I /home/nfp/riscv-atcf-tests/inc/hps remote.c hps_fpga.c -o remote
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h> // for usleep
@@ -147,10 +148,11 @@ static int remote_handle_buffer_command(void) {
     if (i<remote_skt.buffer_valid) {
         remote_skt.buffer[i] = 0;
         if (!strncmp(remote_skt.buffer,"APBW",4)) {
-            int select, reg, data;
-            if (sscanf(remote_skt.buffer, "APBW %i %i %i", &select, &reg, &data)==3) {
+            int select, reg;
+	    unsigned long long int data;
+            if (sscanf(remote_skt.buffer, "APBW %i %i %lli", &select, &reg, &data)==3) {
                 volatile uint32_t *csr = APB_CSR(lw_axi_base, select, reg);
-                fprintf(stderr, "APBW %x %x %08x\n", select, reg, data);
+                fprintf(stderr, "APBW %x %x %08llx\n", select, reg, data);
                 *csr = data;
                 sprintf(buffer, "APBW OK\n");
                 remote_add_to_send(buffer,strlen(buffer));
@@ -167,10 +169,11 @@ static int remote_handle_buffer_command(void) {
                 remote_add_to_send(buffer,strlen(buffer));
             }
         } else if (!strncmp(remote_skt.buffer,"SRAM",4)) {
-            int select, base, size, csum;
-            if (sscanf(remote_skt.buffer, "SRAM %i %i %i %i", &select, &base, &size, &csum)==4) {
-                fprintf(stderr, "SRAM %d 0x%x 0x%x %08x\n", select, base, size, csum);
-                sprintf(buffer, "SRAM %d %x %x %08x\n",select, base, size, csum);
+	    int select, base, size;
+	    unsigned long long int csum;
+            if (sscanf(remote_skt.buffer, "SRAM %i %i %i %lli", &select, &base, &size, &csum)==4) {
+                fprintf(stderr, "SRAM %d 0x%x 0x%x %08llx\n", select, base, size, csum);
+                sprintf(buffer, "SRAM %d %x %x %08llx\n",select, base, size, csum);
                 remote_add_to_send(buffer,strlen(buffer));
                 remote_skt.data_mode = DATA_MODE_RV_DATA;
                 remote_skt.sram_select = select;
