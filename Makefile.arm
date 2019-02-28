@@ -1,0 +1,7 @@
+ARM_GCC := arm-linux-gnueabi-gcc
+ARM_BUILD_DIR = ${ROOT}/arm_build
+arm_all:
+	mkdir -p ${ARM_BUILD_DIR}
+	${ARM_GCC} -I ${INC_DIR}/hps ${SRC_DIR}/hps/remote.c ${SRC_DIR}/hps/hps_fpga.c -o ${ARM_BUILD_DIR}/remote
+	${ARM_GCC} -I ${INC_DIR}/hps ${SRC_DIR}/hps/peek.c   ${SRC_DIR}/hps/hps_fpga.c -o ${ARM_BUILD_DIR}/peek
+	${ARM_GCC} -I ${INC_DIR}/hps ${SRC_DIR}/hps/poke.c   ${SRC_DIR}/hps/hps_fpga.c -o ${ARM_BUILD_DIR}/poke

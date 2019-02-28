@@ -16,6 +16,7 @@ LLVM_LLC  := $(LLVM_BUILD)/bin/llc
 LLVM_LINK := $(LLVM_BUILD)/bin/llvm-link
 
 SRC_DIR     := ${ROOT}/src
+INC_DIR     := ${ROOT}/inc
 TEST_DIR    := ${ROOT}/test
 BUILD_DIR   := ${ROOT}/build
 SCRIPTS_DIR := ${ROOT}/scripts
@@ -196,3 +197,4 @@ fred:
 #ELF_TO_MIF  = python $(SCRIPTS_DIR)/elf_to_mif.py --objdump=$(OBJDUMP) --verbose=1
 
 include Makefile.hps
+include Makefile.arm
