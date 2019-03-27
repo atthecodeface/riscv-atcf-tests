@@ -2,6 +2,10 @@
 # Note:
 # make LLVM_BUILD=../tools RISCV_TOOLS_PREFIX=../tools/bin/riscv32-none-elf-
 # make LLVM_BUILD=/home/gavin/Git/riscv_tools RISCV_TOOLS_PREFIX=/home/gavin/Git/riscv_tools/bin/riscv64-elf-
+# RISCV_TOOLS_PREFIX=/riscv/tools/bin/riscv32-unknown-elf- CC=/riscv/tools/bin/riscv32-unknown-elf-gcc
+# CC_TARG_ARCH :=
+# CC_CMP_TARG_ARCH :=
+
 
 ROOT := ${CURDIR}
 RISCV_TOOLS_PREFIX := ../tools/bin/riscv32-none-elf-
@@ -32,6 +36,7 @@ LD_TARG_ARCH := -melf64lriscv
 OC_TARG_ARCH := --target elf64-littleriscv
 
 CC_TARG_ARCH := --target=riscv32 -march=rv32i
+CC_CMP_TARG_ARCH :=  --target=riscv32 -march=rv32ic
 LD_TARG_ARCH := -melf32lriscv  
 OC_TARG_ARCH := --target elf32-littleriscv
 
@@ -148,15 +153,15 @@ ${OBJ_DIR}/%.o: ${SRC_DIR}/lib/%.c
 
 ${OBJ_DIR}/c_%.o: ${SRC_DIR}/simple/%.c
 	@echo "Compile $< to $@"
-	@${CC} --target=riscv32 -march=rv32ic  ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
+	@${CC} ${CC_CMP_TARG_ARCH} ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/compressed/%.c
 	@echo "Compile $< to $@"
-	@${CC} --target=riscv32 -march=rv32ic  ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
+	@${CC} ${CC_CMP_TARG_ARCH} ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/compressed/%.S
 	@echo "Assemble compressed $< to $@"
-	@${CC} --target=riscv32 -march=rv32ic  ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
+	@${CC} ${CC_CMP_TARG_ARCH}   ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
 
 .PRECIOUS: ${OBJ_DIR}/%.o
 
