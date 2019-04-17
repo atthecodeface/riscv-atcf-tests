@@ -1,7 +1,7 @@
 #define RV_TEST_INIT {}
 #define RV_TEST_PASS(reason) {tohost = 1;while (1) {};}
 #define RV_TEST_FAIL(reason) {fail(reason);}
-#define RV_TEST_CODE int tohost __attribute__((section(".start"))); static void fail(reason) { tohost = reason; while (1) {}}
+#define RV_TEST_CODE int tohost __attribute__((section(".start"),aligned(8))); int fromhost __attribute__((section(".start"),aligned(8))); static void fail(int reason) { tohost = reason; while (1) {}}
 #define RV_TIMER_BASE 0x10000000
 #define RV_TIMER_TIMER_LOWER (RV_TIMER_BASE | 0)
 #define RV_TIMER_TIMER_UPPER (RV_TIMER_BASE | 4)
@@ -15,9 +15,13 @@
 // and a per-thread progress could be used that may be separate from tohost
 #define RV_TEST_ASM_CODE \
     .section ".start" ; \
-    .p2align        2 ; \
+    .p2align        3 ; \
     .globl tohost ; \
 tohost: ; \
+    .long 0 ; \
+    .p2align        3 ; \
+    .globl fromhost ; \
+fromhost: ; \
     .long 0 ; \
 rv_test_pass: addi a0, x0, 1           ;        \
 rv_test_fail: lui     a1, %hi(tohost)  ;        \
