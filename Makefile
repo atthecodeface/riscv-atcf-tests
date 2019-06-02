@@ -13,11 +13,37 @@ RISCV_TOOLS_PREFIX := ../riscv-gnu-tools/bin/riscv64-unknown-elf-
 LLVM_BUILD := ../llvm_build
 
 LD   := $(RISCV_TOOLS_PREFIX)ld
-CC   := $(LLVM_BUILD)/bin/clang
 OD   := $(RISCV_TOOLS_PREFIX)objdump
 OC   := $(RISCV_TOOLS_PREFIX)objcopy
+
+# clang
+CC   := $(LLVM_BUILD)/bin/clang
 LLVM_LLC  := $(LLVM_BUILD)/bin/llc
 LLVM_LINK := $(LLVM_BUILD)/bin/llvm-link
+CC_TARG_ARCH := --target=riscv64 -march=rv64i
+LD_TARG_ARCH := -melf64lriscv
+OC_TARG_ARCH := --target elf64-littleriscv
+CC_OPT       := -O3
+
+CC_TARG_ARCH := --target=riscv32 -march=rv32i
+CC_CMP_TARG_ARCH :=  --target=riscv32 -march=rv32ic
+LD_TARG_ARCH := -melf32lriscv
+OC_TARG_ARCH := --target elf32-littleriscv
+CC_OPT       := -O3
+
+# gcc
+CC           := $(RISCV_TOOLS_PREFIX)gcc
+CC_TARG_ARCH := -march=rv64i
+LD_TARG_ARCH := -melf64lriscv
+OC_TARG_ARCH := --target elf64-littleriscv
+CC_OPT       := -O3
+
+CC_TARG_ARCH :=  -march=rv32i -mabi=ilp32
+#--target-help
+CC_CMP_TARG_ARCH :=  --target=riscv32 -march=rv32ic
+LD_TARG_ARCH := -melf32lriscv
+OC_TARG_ARCH := --target elf32-littleriscv
+CC_OPT       := -O3
 
 SRC_DIR     := ${ROOT}/src
 INC_DIR     := ${ROOT}/inc
@@ -30,15 +56,6 @@ BIN_DIR  := ${BUILD_DIR}/bin
 DUMP_DIR := ${BUILD_DIR}/dump
 
 TEST_INCLUDES := --include=${TEST_DIR}/include/sim.h
-
-CC_TARG_ARCH := --target=riscv64 -march=rv64i
-LD_TARG_ARCH := -melf64lriscv  
-OC_TARG_ARCH := --target elf64-littleriscv
-
-CC_TARG_ARCH := --target=riscv32 -march=rv32i
-CC_CMP_TARG_ARCH :=  --target=riscv32 -march=rv32ic
-LD_TARG_ARCH := -melf32lriscv  
-OC_TARG_ARCH := --target elf32-littleriscv
 
 .PHONY: all all_binaries
 all: all_binaries
@@ -84,7 +101,7 @@ $1__MAP      := ${MAP_DIR}/$1.map
 $1__ELF_FULL := ${BIN_DIR}/$1.elf.full
 $1__ELF      := ${BIN_DIR}/$1.elf
 
-#$1__LINK_OBJECTS ?= 
+#$1__LINK_OBJECTS ?=
 
 
 # --strip-all strips out the symbols, but we want 'tohost'
@@ -125,6 +142,8 @@ help:
 	@echo "make hps"
 	@echo "  to make the HPS RISC-V images"
 
+$(eval $(call rv.link,bit_manipulation_swap_reg,link,base bit_manipulation_swap_reg))
+$(eval $(call rv.link,bit_manipulation_shift_rotate_reg,link,base bit_manipulation_shift_rotate_reg))
 $(eval $(call rv.link,loop,link,base loop))
 $(eval $(call rv.link,logic,link,base logic))
 $(eval $(call rv.link,traps,link,base trap traps))
@@ -141,27 +160,27 @@ $(eval $(call rv.link,c_branch,link,base c_branch))
 #a Default rules for building objects
 ${OBJ_DIR}/%.o: ${SRC_DIR}/wrappers/%.S
 	@echo "Assemble $< to $@"
-	@${CC} ${CC_TARG_ARCH} ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
+	@${CC} ${CC_OPT} ${CC_TARG_ARCH} ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/simple/%.c
 	@echo "Compile $< to $@"
-	@${CC} ${CC_TARG_ARCH}  ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
+	${CC} ${CC_OPT} ${CC_TARG_ARCH}  ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/lib/%.c
 	@echo "Compile $< to $@"
-	@${CC} ${CC_TARG_ARCH}  ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
+	@${CC} ${CC_OPT} ${CC_TARG_ARCH}  ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
 
 ${OBJ_DIR}/c_%.o: ${SRC_DIR}/simple/%.c
-	@echo "Compile $< to $@"
-	@${CC} ${CC_CMP_TARG_ARCH} ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
+	@echo "Compile (compressed) $< to $@"
+	@${CC} ${CC_OPT} ${CC_CMP_TARG_ARCH} ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/compressed/%.c
-	@echo "Compile $< to $@"
-	@${CC} ${CC_CMP_TARG_ARCH} ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
+	@echo "Compile (compressed) $< to $@"
+	@${CC} ${CC_OPT} ${CC_CMP_TARG_ARCH} ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
 
 ${OBJ_DIR}/%.o: ${SRC_DIR}/compressed/%.S
-	@echo "Assemble compressed $< to $@"
-	@${CC} ${CC_CMP_TARG_ARCH}   ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
+	@echo "Assemble (compressed) $< to $@"
+	@${CC} ${CC_OPT} ${CC_CMP_TARG_ARCH}   ${TEST_INCLUDES} -I${SRC_DIR} $< -c -o $@
 
 .PRECIOUS: ${OBJ_DIR}/%.o
 

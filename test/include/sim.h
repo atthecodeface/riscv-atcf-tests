@@ -1,7 +1,7 @@
 #define RV_TEST_INIT {}
 #define RV_TEST_PASS(reason) {tohost = 1;while (1) {};}
 #define RV_TEST_FAIL(reason) {fail(reason);}
-#define RV_TEST_CODE int tohost __attribute__((section(".start"),aligned(8))); int fromhost __attribute__((section(".start"),aligned(8))); static void fail(int reason) { tohost = reason; while (1) {}}
+#define RV_TEST_CODE volatile int tohost __attribute__((section(".start"),aligned(8))); volatile int fromhost __attribute__((section(".start"),aligned(8))); static void fail(int reason) { tohost = reason; while (1) {}}
 #define RV_TIMER_BASE 0x10000000
 #define RV_TIMER_TIMER_LOWER (RV_TIMER_BASE | 0)
 #define RV_TIMER_TIMER_UPPER (RV_TIMER_BASE | 4)
