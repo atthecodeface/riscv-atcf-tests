@@ -32,18 +32,12 @@ OC_TARG_ARCH := --target elf32-littleriscv
 CC_OPT       := -O3
 
 # gcc
-CC           := $(RISCV_TOOLS_PREFIX)gcc
-CC_TARG_ARCH := -march=rv64i
-LD_TARG_ARCH := -melf64lriscv
-OC_TARG_ARCH := --target elf64-littleriscv
-CC_OPT       := -O3
-
-CC_TARG_ARCH :=  -march=rv32i -mabi=ilp32
-#--target-help
-CC_CMP_TARG_ARCH :=  --target=riscv32 -march=rv32ic
-LD_TARG_ARCH := -melf32lriscv
-OC_TARG_ARCH := --target elf32-littleriscv
-CC_OPT       := -O3
+CC               := $(RISCV_TOOLS_PREFIX)gcc
+CC_TARG_ARCH     :=  -march=rv32im -mabi=ilp32
+CC_CMP_TARG_ARCH :=  -march=rv32imc -mabi=ilp32
+LD_TARG_ARCH     := -melf32lriscv
+OC_TARG_ARCH     := --target elf32-littleriscv
+CC_OPT           := -O3
 
 SRC_DIR     := ${ROOT}/src
 INC_DIR     := ${ROOT}/inc
@@ -147,7 +141,9 @@ $(eval $(call rv.link,bit_manipulation_shift_rotate_reg,link,base bit_manipulati
 $(eval $(call rv.link,loop,link,base loop))
 $(eval $(call rv.link,logic,link,base logic))
 $(eval $(call rv.link,traps,link,base trap traps))
+$(eval $(call rv.link,traps_user,link,base trap traps_user))
 $(eval $(call rv.link,timer_irqs,link,base trap_int timer timer_irqs))
+$(eval $(call rv.link,user_mode,link,base trap_count user_mode))
 $(eval $(call rv.link,data,link,base trap data))
 $(eval $(call rv.link,c_dprintf,link,base c_dprintf))
 $(eval $(call rv.link,c_arith,link,base c_arith))

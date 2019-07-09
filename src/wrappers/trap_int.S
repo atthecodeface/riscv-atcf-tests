@@ -24,7 +24,7 @@ record_trap:
     .type   int_callback,@function
     .globl int_callback
 int_callback:
-    addi sp, sp, -48
+    addi sp, sp, -64
     sw a0,0(sp)
     sw a1,4(sp)
     sw a2,8(sp)
@@ -37,6 +37,10 @@ int_callback:
     sw t4,36(sp)
     sw t5,40(sp)
     sw t6,44(sp)
+    sw a4,48(sp)
+    sw a5,52(sp)
+    sw a6,56(sp)
+    sw a7,60(sp)
 
     csrr a0, 0x341 /* mepc */
     csrr a1, 0x342 /* mcause */
@@ -46,6 +50,10 @@ int_callback:
     addi    t1, t1, %lo(trap_data)
     lw      ra,0(t1)
     jalr    ra, ra, 0
+    lw a7,60(sp)
+    lw a6,56(sp)
+    lw a5,52(sp)
+    lw a4,48(sp)
     lw t6,44(sp)
     lw t5,40(sp)
     lw t4,36(sp)
@@ -58,17 +66,17 @@ int_callback:
     lw a2,8(sp)
     lw a1,4(sp)
     lw a0,0(sp)
-    addi sp, sp, 48
+    addi sp, sp, 64
     mret
 
-    
+
 
     .section ".trap_data"
     .globl trap_data
-    
+
     .p2align        4 /* 16-byte alignment */
     .type   trap_data,@function
-trap_data:  
+trap_data:
     .long 0 // mepc
     .long 0 // mcause
     .long 0 // mstatus
